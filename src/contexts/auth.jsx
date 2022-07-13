@@ -25,14 +25,56 @@ function AuthProvider({ children }) {
     loadStorage()
   }, [])
 
-  //função para cadastrar usuario
-  async function signUp(email, password) {
+  //função para cadastrar usuario (CADASTRA USUARIO)
+  async function signUp(email, password, nome) {
     setLoadingAuth(true) //quando alguem tiver tentando cadastrar
-    await firebase.auth().createUserWithEmailAndPassword(email, password) //criar um usuario (await - espera a requisição para cadastro)
+    await firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, password) //criar um usuario (await - espera a requisição para cadastro)
+      .then(async value => {
+        const uid = value.user.uid //captura o id do usuario cadastrado, nessa let
+        //vai no banco fazer o cadastro de usuario (CADASTRA NO BANCO)
+        await firebase
+          .firestore()
+          .collection('users')
+          .doc(uid)
+          .set({
+            nome: nome,
+            avatarUrl: null
+          })
+          //dados que são colocados para fazer o cadastro, disponibilizados para todos terem acesso
+          .then(() => {
+            const data = {
+              uid: uid,
+              nome: nome,
+              email: value.user.email,
+              avatarUrl: null
+            }
+            setUser(data)
+            storageUser(data)
+            setLoadingAuth(false)
+          })
+      })
+      //capatura um erro, caso de algum problema
+      .catch(error => {
+        console.log(error)
+        setLoadingAuth(false)
+      })
+  }
+  //salvar um item no localStorage
+  function storageUser(data) {
+    localStorage.setItem('SistemaUser', JSON.stringify(data))
   }
 
   return (
-    <AuthContext.Provider value={{ signed: !!user, user, loading }}>
+    <AuthContext.Provider
+      value={{
+        signed: !!user,
+        user,
+        loading,
+        signUp
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )
