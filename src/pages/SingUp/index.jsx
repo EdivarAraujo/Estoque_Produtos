@@ -1,15 +1,22 @@
-import { useState } from 'react'
+import { useState, useContext, useEffect } from 'react'
 import logo from '../../assets/logoTijuca.png'
 import { Link } from 'react-router-dom'
+import { AuthContext } from '../../contexts/auth'
 
 function SingUp() {
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
+  const { signUp } = useContext(AuthContext)
+
   function handleSubmit(e) {
     e.preventDefault() // para não atualiza a pagina
-    alert('Please enter')
+
+    if (nome !== '' && email !== '' && password !== '') {
+      signUp(email, password, nome)
+      signUp('')
+    }
   }
 
   return (
@@ -34,7 +41,7 @@ function SingUp() {
           />
           <input
             type="password"
-            placeholder="********"
+            placeholder="******"
             value={password}
             onChange={e => setPassword(e.target.value)}
           />
