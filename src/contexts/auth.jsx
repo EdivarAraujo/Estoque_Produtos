@@ -1,5 +1,7 @@
 import { useState, createContext, useEffect } from 'react'
-import firebase from '../services/firebaseConection'
+import { db, app } from '../services/firebaseConection'
+import { setDoc, doc } from 'firebase/firestore'
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
 
 export const AuthContext = createContext({})
 
@@ -28,32 +30,34 @@ function AuthProvider({ children }) {
   //função para cadastrar usuario (CADASTRA USUARIO)
   async function signUp(email, password, nome) {
     setLoadingAuth(true) //quando alguem tiver tentando cadastrar
-    await firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password) //criar um usuario (await - espera a requisição para cadastro)
+    const auth = getAuth()
+    await createUserWithEmailAndPassword(auth, email, password) //criar um usuario (await - espera a requisição para cadastro)
       .then(async value => {
-        const uid = value.user.uid //captura o id do usuario cadastrado, nessa let
+        let uid = value.user.uid //captura o id do usuario cadastrado, nessa let
         //vai no banco fazer o cadastro de usuario (CADASTRA NO BANCO)
-        await firebase
-          .firestore()
-          .collection('users')
-          .doc(uid)
-          .set({
+
+        try {
+          const docRef = await setDoc(doc(db, 'users', String(uid)), {
             nome: nome,
             avatarUrl: null
-          })
-          //dados que são colocados para fazer o cadastro, disponibilizados para todos terem acesso
-          .then(() => {
-            const data = {
+          }).then(() => {
+            //dados que são colocados para fazer o cadastro, disponibilizados para todos terem acesso
+            let data = {
               uid: uid,
               nome: nome,
               email: value.user.email,
               avatarUrl: null
             }
+
             setUser(data)
             storageUser(data)
             setLoadingAuth(false)
+            console.log(error)
           })
+          console.log('Documento inserido ID: ', docRef.id)
+        } catch (e) {
+          console.error('Erro ao adicionar documento: ', e)
+        }
       })
       //capatura um erro, caso de algum problema
       .catch(error => {
@@ -66,13 +70,22 @@ function AuthProvider({ children }) {
     localStorage.setItem('SistemaUser', JSON.stringify(data))
   }
 
+  //função ára deslogar usuario e lipar o local storage, e voltar o usuario para nulo
+
+  async function singOut() {
+    await firebase.auth().signOut()
+    localStorage.removeItem('SistemaUser')
+    setUser(null)
+  }
+
   return (
     <AuthContext.Provider
       value={{
         signed: !!user,
         user,
         loading,
-        signUp
+        signUp,
+        singOut
       }}
     >
       {children}
