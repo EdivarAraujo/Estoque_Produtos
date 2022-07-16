@@ -8,6 +8,7 @@ function SingUp() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
+  //chama a função de cadastro
   const { signUp } = useContext(AuthContext)
 
   function handleSubmit(e) {
@@ -15,7 +16,6 @@ function SingUp() {
 
     if (nome !== '' && email !== '' && password !== '') {
       signUp(email, password, nome)
-      signUp('')
     }
   }
 

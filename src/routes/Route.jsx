@@ -19,7 +19,7 @@ export default function RouteWrapper({
   }
   // se ele tiver logado e tela que tentou acessa não é privada vai direcionar para o deshboard
   if (signed && !isPrivate) {
-    return <Redirect to="/deshboard" />
+    return <Redirect to="/dashboard" />
   }
   //componente a ser renderizado
   return <Route {...rest} render={props => <Component {...props} />} />
