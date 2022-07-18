@@ -1,7 +1,11 @@
 import { useState, createContext, useEffect } from 'react'
 import { db, app } from '../services/firebaseConection'
 import { setDoc, doc } from 'firebase/firestore'
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signOut as signOutService
+} from 'firebase/auth'
 
 export const AuthContext = createContext({})
 
@@ -70,10 +74,18 @@ function AuthProvider({ children }) {
     localStorage.setItem('SistemaUser', JSON.stringify(data))
   }
 
-  //função ára deslogar usuario e lipar o local storage, e voltar o usuario para nulo
+  // função ára deslogar usuario e lipar o local storage, e voltar o usuario para nulo
 
-  async function singOut() {
-    await firebase.auth().signOut()
+  async function signOut() {
+    // alert('')
+    const auth = getAuth()
+    signOutService(auth)
+      .then(() => {
+        // Sign-out successful.
+      })
+      .catch(error => {
+        // An error happened.
+      })
     localStorage.removeItem('SistemaUser')
     setUser(null)
   }
@@ -85,7 +97,7 @@ function AuthProvider({ children }) {
         user,
         loading,
         signUp,
-        singOut
+        signOut
       }}
     >
       {children}
