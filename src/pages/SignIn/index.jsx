@@ -1,15 +1,22 @@
-import { useState } from 'react'
-import './signin.css'
-import logo from '../../assets/logoTijuca.png'
+import { useState, useContext } from 'react'
 import { Link } from 'react-router-dom'
 
-function SingIn() {
+import { AuthContext } from '../../contexts/auth'
+import './signin.css'
+import logo from '../../assets/logoTijuca.png'
+
+function SignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
+  const { signIn, loadingAuth } = useContext(AuthContext)
+
+  // -------------------  chama a função de login, veirifcando os campos ------------------------
   function handleSubmit(e) {
-    e.preventDefault() // para não atualiza a pagina
-    alert('Please enter')
+    e.preventDefault()
+    if (email !== '' && password !== '') {
+      signIn(email, password)
+    }
   }
 
   return (
@@ -32,7 +39,9 @@ function SingIn() {
             value={password}
             onChange={e => setPassword(e.target.value)}
           />
-          <button type="submit">Acessar</button>
+          <button type="submit">
+            {loadingAuth ? 'Carregando...' : 'Acessar'}
+          </button>
         </form>
         <Link to="/register">Criar uma conta</Link>
       </div>
@@ -40,4 +49,4 @@ function SingIn() {
   )
 }
 
-export default SingIn
+export default SignIn
