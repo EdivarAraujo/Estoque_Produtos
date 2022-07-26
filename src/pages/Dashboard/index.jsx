@@ -6,6 +6,7 @@ export default function Dashboard() {
   return (
     <div>
       <h1>Dashboard</h1>
+      {/*Vai deslogar quando clicar  */}
       <button onClick={() => signOut()}> Sair </button>
     </div>
   )
